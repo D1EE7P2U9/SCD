@@ -1,0 +1,77 @@
+
+--SCD type 1
+
+-- Create the source_data table
+CREATE TABLE stage_data (
+    player_id INT,
+    name VARCHAR(100),
+    team VARCHAR(100),
+    role VARCHAR(100),
+    batting_avg DECIMAL(5, 2)
+);
+
+-- Insert sample data into the source_data table
+INSERT INTO stage_data (player_id, name, team, role, batting_avg) VALUES
+(1, 'Virat Kohli', 'RCB', 'Batsman', 50.0),
+(2, 'MS Dhoni', 'CSK', 'Wicketkeeper', 45.5),
+(3, 'Rohit Sharma', 'MI', 'Batsman', 48.6);
+
+select * from stage_data;
+
+
+######################################################################################################################################################################################################################
+
+
+-- Create the target_data table
+CREATE TABLE target_table (
+    player_id INT,
+    name VARCHAR(100),
+    team VARCHAR(100),
+    role VARCHAR(100),
+    batting_avg DECIMAL(5, 2)
+);
+
+-- Insert sample data into the target_data table
+INSERT INTO target_table (player_id, name, team, role, batting_avg) VALUES
+(1, 'Virat Kohli', 'RCB', 'Batsman', 49.5),
+(2, 'MS Dhoni', 'CSK', 'Wicketkeeper', 45.5);
+
+
+select * from target_table;
+
+
+######################################################################################################################################################################################################################
+
+
+-- Step 1: Update existing records in the target_data table
+UPDATE target_table
+SET 
+    name = s.name,
+    team = s.team,
+    role = s.role,
+    batting_avg = s.batting_avg
+FROM 
+    stage_data s
+WHERE 
+    target_table.player_id = s.player_id;
+
+######################################################################################################################################################################################################################
+
+
+-- Step 2: Insert new records into the target_data table
+INSERT INTO target_table (player_id, name, team, role, batting_avg)
+SELECT s.player_id, s.name, s.team, s.role, s.batting_avg
+FROM 
+    stage_data s
+LEFT JOIN 
+    target_table t ON s.player_id = t.player_id
+WHERE 
+    t.player_id IS NULL;
+
+######################################################################################################################################################################################################################
+
+
+-- Verify the results
+SELECT * FROM target_table ORDER BY player_id;
+
+######################################################################################################################################################################################################################
